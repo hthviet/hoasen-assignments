@@ -1,0 +1,67 @@
+@model PT_WEB.Models.ViewModels.CartPageViewModel
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<h1 class="mb-4">Shopping cart</h1>
+
+@if (TempData["Message"] is not null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+@if (Model.Items.Count == 0)
+{
+    <div class="alert alert-info">Your cart is empty.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="@item.ImageUrl" alt="@item.ProductName" width="80" class="rounded border" />
+                                <span>@item.ProductName</span>
+                            </div>
+                        </td>
+                        <td>@item.UnitPrice.ToString("N0") VND</td>
+                        <td>
+                            <form asp-action="Update" method="post" class="d-flex gap-2">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <input type="number" class="form-control" name="quantity" value="@item.Quantity" min="1" style="width: 90px;" />
+                                <button class="btn btn-outline-secondary">Update</button>
+                            </form>
+                        </td>
+                        <td>@item.LineTotal.ToString("N0") VND</td>
+                        <td>
+                            <form asp-action="Remove" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <button class="btn btn-outline-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end">
+        <p class="fs-5 fw-bold">Total: @Model.TotalAmount.ToString("N0") VND</p>
+        <a class="btn btn-primary" asp-controller="Orders" asp-action="Checkout">Checkout</a>
+    </div>
+}

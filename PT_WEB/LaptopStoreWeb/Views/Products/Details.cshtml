@@ -1,0 +1,29 @@
+@model PT_WEB.Models.Product
+@{
+    ViewData["Title"] = "Product details";
+}
+
+<div class="row g-4">
+    <div class="col-md-5">
+        <img src="@Model.ImageUrl" class="img-fluid rounded border" alt="@Model.Name" />
+    </div>
+    <div class="col-md-7">
+        <h1 class="mb-3">@Model.Name</h1>
+        <p class="text-muted">Category: @Model.Category?.Name</p>
+        <p><strong>Brand:</strong> @Model.Brand</p>
+        <p>@Model.Description</p>
+        <p class="fs-4 fw-bold text-primary">@Model.Price.ToString("N0") VND</p>
+        <p><strong>Stock:</strong> @Model.StockQuantity</p>
+
+        <form asp-controller="Cart" asp-action="Add" method="post" class="row g-2 mt-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productId" value="@Model.Id" />
+            <div class="col-md-3">
+                <input type="number" class="form-control" name="quantity" min="1" value="1" />
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100">Add to cart</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+@model PT_WEB.Models.Order
+@{
+    ViewData["Title"] = "Order success";
+}
+
+<div class="alert alert-success">
+    <h1 class="h3">Order placed successfully</h1>
+    <p class="mb-0">Your order number is #@Model.Id.</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Status:</strong> @Model.Status</p>
+        <p><strong>Order date:</strong> @Model.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+        <p><strong>Total:</strong> @Model.TotalAmount.ToString("N0") VND</p>
+        <p><strong>Shipping address:</strong> @Model.ShippingAddress</p>
+    </div>
+</div>

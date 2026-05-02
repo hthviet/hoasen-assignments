@@ -1,0 +1,12 @@
+@model PT_WEB.Models.Product
+@{
+    ViewData["Title"] = "Add product";
+}
+
+<h1 class="mb-4">Add product</h1>
+
+<partial name="_ProductForm" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

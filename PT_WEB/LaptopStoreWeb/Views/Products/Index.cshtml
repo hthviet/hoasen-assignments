@@ -1,0 +1,92 @@
+@model PT_WEB.Models.ViewModels.ProductListViewModel
+@{
+    ViewData["Title"] = "Products";
+}
+
+<h1 class="mb-4">Products</h1>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-4">
+        <input class="form-control" name="searchTerm" value="@Model.SearchTerm" placeholder="Search by name" />
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" name="categoryId">
+            <option value="">All categories</option>
+            @foreach (var category in Model.Categories)
+            {
+                if (Model.CategoryId == category.Id)
+                {
+                    <option value="@category.Id" selected>@category.Name</option>
+                }
+                else
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" name="sortOrder">
+            <option value="">Default</option>
+            @if (Model.SortOrder == "price_asc")
+            {
+                <option value="price_asc" selected>Price low to high</option>
+            }
+            else
+            {
+                <option value="price_asc">Price low to high</option>
+            }
+
+            @if (Model.SortOrder == "price_desc")
+            {
+                <option value="price_desc" selected>Price high to low</option>
+            }
+            else
+            {
+                <option value="price_desc">Price high to low</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button class="btn btn-primary">Filter</button>
+    </div>
+</form>
+
+<div class="row g-4">
+    @foreach (var product in Model.Products)
+    {
+        <div class="col-md-3">
+            <div class="card h-100">
+                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 180px; object-fit: cover;" />
+                <div class="card-body d-flex flex-column">
+                    <h2 class="h6">@product.Name</h2>
+                    <p class="text-muted small">@product.Category?.Name</p>
+                    <p class="small flex-grow-1">@product.Description</p>
+                    <p class="fw-bold text-primary">@product.Price.ToString("N0") VND</p>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-secondary btn-sm" asp-action="Details" asp-route-id="@product.Id">Details</a>
+                        <form asp-controller="Cart" asp-action="Add" method="post" class="flex-grow-1">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@product.Id" />
+                            <button class="btn btn-primary btn-sm w-100">Add to cart</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination">
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : string.Empty)">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchTerm="@Model.SearchTerm" asp-route-categoryId="@Model.CategoryId" asp-route-sortOrder="@Model.SortOrder">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
