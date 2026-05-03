@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NHEO Use Case Overview Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #f6f8fc 0%, #eef2f9 100%);
+      color: #233044;
+    }
+    .page {
+      width: 1800px;
+      min-height: 1200px;
+      margin: 0 auto;
+      padding: 48px;
+    }
+    .hero {
+      background: white;
+      border: 1px solid #d7dfef;
+      border-radius: 28px;
+      padding: 28px 36px;
+      box-shadow: 0 20px 60px rgba(72, 101, 169, 0.10);
+      margin-bottom: 28px;
+    }
+    .eyebrow {
+      font-size: 18px;
+      color: #5d73d9;
+      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: 46px;
+      line-height: 1.1;
+      color: #273146;
+    }
+    .subtext {
+      margin-top: 12px;
+      font-size: 20px;
+      color: #596579;
+    }
+    .diagram-shell {
+      background: white;
+      border: 1px solid #d7dfef;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(72, 101, 169, 0.10);
+    }
+    .legend {
+      display: flex;
+      gap: 18px;
+      margin-top: 18px;
+      font-size: 17px;
+      color: #5a6679;
+      flex-wrap: wrap;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #f5f7fc;
+      border: 1px solid #dde4f2;
+    }
+    .line {
+      width: 30px;
+      height: 0;
+      border-top: 3px dashed #2f855a;
+    }
+    .mermaid {
+      text-align: center;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="eyebrow">NHEO Platform</div>
+      <h1>Use Case Overview Diagram</h1>
+      <div class="subtext">Actor participation plus system-level include and extend relationships in one overview.</div>
+    </section>
+
+    <section class="diagram-shell">
+      <div class="mermaid">
+graph TB
+    subgraph Actors
+        Guest["Guest User"]
+        Customer["Registered Customer"]
+        Admin["Administrator"]
+    end
+
+    subgraph AuthenticationUC["Authentication & Account"]
+        UC1(["Register New Account"])
+        UC2(["Login to Account"])
+        UC3(["View Profile"])
+        UC4(["Logout from Account"])
+    end
+
+    subgraph ProductUC["Product Catalog"]
+        UC5(["Browse Product Catalog"])
+        UC6(["Search Products"])
+        UC7(["Filter & Sort Products"])
+        UC8(["View Product Details"])
+    end
+
+    subgraph CartUC["Shopping Cart"]
+        UC9(["Add Product to Cart"])
+        UC10(["View Shopping Cart"])
+        UC11(["Modify Cart Quantity"])
+        UC12(["Remove from Cart"])
+    end
+
+    subgraph CheckoutUC["Checkout & Orders"]
+        UC13(["Initiate Checkout"])
+        UC14(["Place Order"])
+        UC15(["View Order History"])
+        UC16(["View Order Details"])
+    end
+
+    subgraph AdminUC["Admin Management"]
+        UC17(["Access Admin Dashboard"])
+        UC18(["Manage Products"])
+        UC19(["Track Orders"])
+        UC20(["Update Order Status"])
+        UC21(["View Revenue Reports"])
+    end
+
+    Guest --> UC1
+    Guest --> UC2
+    Guest --> UC5
+    Guest --> UC6
+    Guest --> UC7
+    Guest --> UC8
+    Guest --> UC9
+    Guest --> UC10
+    Guest --> UC11
+    Guest --> UC12
+
+    Customer --> UC2
+    Customer --> UC3
+    Customer --> UC4
+    Customer --> UC5
+    Customer --> UC6
+    Customer --> UC7
+    Customer --> UC8
+    Customer --> UC9
+    Customer --> UC10
+    Customer --> UC11
+    Customer --> UC12
+    Customer --> UC13
+    Customer --> UC14
+    Customer --> UC15
+    Customer --> UC16
+
+    Admin --> UC17
+    Admin --> UC18
+    Admin --> UC19
+    Admin --> UC20
+    Admin --> UC21
+
+    UC6 -. "include" .-> UC5
+    UC7 -. "include" .-> UC5
+    UC13 -. "include" .-> UC10
+    UC14 -. "include" .-> UC13
+
+    UC8 -. "extend" .-> UC5
+    UC9 -. "extend" .-> UC8
+    UC11 -. "extend" .-> UC10
+    UC12 -. "extend" .-> UC10
+    UC16 -. "extend" .-> UC15
+    UC20 -. "extend" .-> UC19
+
+    style Actors fill:#e6f0ff,stroke:#7a8de8,stroke-width:2px
+    style AuthenticationUC fill:#f7edff,stroke:#b28ae6,stroke-width:2px
+    style ProductUC fill:#ecfaf1,stroke:#66b282,stroke-width:2px
+    style CartUC fill:#fff4e8,stroke:#d89b52,stroke-width:2px
+    style CheckoutUC fill:#fff0f4,stroke:#db7d99,stroke-width:2px
+    style AdminUC fill:#eef7e9,stroke:#8bb56d,stroke-width:2px
+      </div>
+      <div class="legend">
+        <div class="chip">Solid line: actor participates directly in use case</div>
+        <div class="chip"><span class="line"></span>Dashed line: include or extend relationship</div>
+      </div>
+    </section>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { useMaxWidth: true, htmlLabels: true } });
+  </script>
+</body>
+</html>
