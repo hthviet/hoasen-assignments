@@ -433,6 +433,57 @@ This document describes the functional requirements and user interactions for th
 
 ---
 
+## Use Case Relationship Model
+
+### Relationship Rules
+- `<<include>>` is used when a use case always reuses another use case as part of its normal behavior.
+- `<<extend>>` is used when a use case is optional, conditional, or launched from a base use case.
+- Login checks, admin-role checks, and other access guards are kept as preconditions unless the base flow always executes the related use case.
+
+### Include and Extend Matrix
+
+| Use Case | `<<include>>` | `<<extend>>` | Notes |
+|---|---|---|---|
+| UC-1.1 Register New Account | - | - | Standalone entry-point use case. |
+| UC-1.2 Login to Account | - | - | Authentication is reused as a precondition, not as an include relation. |
+| UC-1.3 View Profile | - | - | Independent authenticated user function. |
+| UC-1.4 Logout from Account | - | - | Separate account action, not modeled as an extension of profile. |
+| UC-2.1 Browse Product Catalog | - | - | Base catalog use case for search, filtering, and detail viewing. |
+| UC-2.2 Search Products | UC-2.1 Browse Product Catalog | - | Search is performed within the catalog browsing context. |
+| UC-2.3 Filter & Sort Products | UC-2.1 Browse Product Catalog | - | Filtering and sorting always operate on the displayed catalog. |
+| UC-2.4 View Product Details | - | UC-2.1 Browse Product Catalog | Product detail view is an optional drill-down from browsing. |
+| UC-3.1 Add Product to Cart | - | UC-2.4 View Product Details | Add-to-cart is triggered from the detail view in the current mobile/web flow. |
+| UC-3.2 View Shopping Cart | - | - | Base cart-management use case. |
+| UC-3.3 Modify Cart Item Quantity | - | UC-3.2 View Shopping Cart | Quantity adjustment is an optional action from cart viewing. |
+| UC-3.4 Remove Product from Cart | - | UC-3.2 View Shopping Cart | Item removal is an optional action from cart viewing. |
+| UC-4.1 Initiate Checkout | UC-3.2 View Shopping Cart | - | Checkout begins from the shopping cart. |
+| UC-4.2 Place Order | UC-4.1 Initiate Checkout | - | Order placement always occurs from the checkout flow. |
+| UC-5.1 View Order History | - | - | Base order-tracking use case. |
+| UC-5.2 View Order Details | - | UC-5.1 View Order History | Detailed inspection is an optional drill-down from order history. |
+| UC-6.1 Access Admin Dashboard | - | - | Entry-point admin use case. |
+| UC-6.2 Manage Products (Create/Read/Update) | - | - | Managed as an independent admin function reached from dashboard navigation. |
+| UC-6.3 Track Orders | - | - | Base admin order-management use case. |
+| UC-6.4 Update Order Status | - | UC-6.3 Track Orders | Status update is an optional action launched from order tracking. |
+| UC-6.5 View Revenue Reports | - | - | Independent analytics use case reached from dashboard navigation. |
+
+### Relationship Summary
+
+#### `<<include>>` Relationships
+- UC-2.2 Search Products `<<include>>` UC-2.1 Browse Product Catalog
+- UC-2.3 Filter & Sort Products `<<include>>` UC-2.1 Browse Product Catalog
+- UC-4.1 Initiate Checkout `<<include>>` UC-3.2 View Shopping Cart
+- UC-4.2 Place Order `<<include>>` UC-4.1 Initiate Checkout
+
+#### `<<extend>>` Relationships
+- UC-2.4 View Product Details `<<extend>>` UC-2.1 Browse Product Catalog
+- UC-3.1 Add Product to Cart `<<extend>>` UC-2.4 View Product Details
+- UC-3.3 Modify Cart Item Quantity `<<extend>>` UC-3.2 View Shopping Cart
+- UC-3.4 Remove Product from Cart `<<extend>>` UC-3.2 View Shopping Cart
+- UC-5.2 View Order Details `<<extend>>` UC-5.1 View Order History
+- UC-6.4 Update Order Status `<<extend>>` UC-6.3 Track Orders
+
+---
+
 ## Non-Functional Requirements
 
 ### Performance

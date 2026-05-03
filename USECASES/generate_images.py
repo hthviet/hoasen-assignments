@@ -10,6 +10,22 @@ ROOT_DIR = "/Users/viethuynh/Library/Mobile Documents/com~apple~CloudDocs/NHEO/U
 MARKDOWN_PATH = os.path.join(ROOT_DIR, "USE_CASES.md")
 INDIVIDUAL_DIR = os.path.join(ROOT_DIR, "individual_usecases")
 FONT_PATH = "/System/Library/Fonts/Helvetica.ttc"
+RELATIONSHIPS = {
+    "include": {
+        "UC-2.2": ["UC-2.1"],
+        "UC-2.3": ["UC-2.1"],
+        "UC-4.1": ["UC-3.2"],
+        "UC-4.2": ["UC-4.1"],
+    },
+    "extend": {
+        "UC-2.4": ["UC-2.1"],
+        "UC-3.1": ["UC-2.4"],
+        "UC-3.3": ["UC-3.2"],
+        "UC-3.4": ["UC-3.2"],
+        "UC-5.2": ["UC-5.1"],
+        "UC-6.4": ["UC-6.3"],
+    },
+}
 
 
 def load_font(size):
@@ -97,6 +113,54 @@ def draw_actor(draw, center_x, top_y, name, line_color, text_color, font):
         "hand_x": center_x + 36,
         "hand_y": torso_top + 18,
     }
+
+
+def draw_dashed_line(draw, start, end, fill, width=3, dash=12, gap=8):
+    x1, y1 = start
+    x2, y2 = end
+    dx = x2 - x1
+    dy = y2 - y1
+    distance = max((dx * dx + dy * dy) ** 0.5, 1)
+    step_x = dx / distance
+    step_y = dy / distance
+    painted = 0
+    while painted < distance:
+        segment_end = min(painted + dash, distance)
+        sx = x1 + step_x * painted
+        sy = y1 + step_y * painted
+        ex = x1 + step_x * segment_end
+        ey = y1 + step_y * segment_end
+        draw.line([(sx, sy), (ex, ey)], fill=fill, width=width)
+        painted += dash + gap
+
+
+def draw_arrow_head(draw, tip, tail, fill):
+    tx, ty = tip
+    bx, by = tail
+    dx = tx - bx
+    dy = ty - by
+    distance = max((dx * dx + dy * dy) ** 0.5, 1)
+    ux = dx / distance
+    uy = dy / distance
+    left_x = tx - ux * 18 - uy * 8
+    left_y = ty - uy * 18 + ux * 8
+    right_x = tx - ux * 18 + uy * 8
+    right_y = ty - uy * 18 - ux * 8
+    draw.polygon([(tx, ty), (left_x, left_y), (right_x, right_y)], fill=fill)
+
+
+def draw_relation_ellipse(draw, box, title, fill, outline, text_color, font):
+    draw.ellipse([(box[0], box[1]), (box[2], box[3])], fill=fill, outline=outline, width=3)
+    draw_centered_text(draw, box, title, font, text_color, 18)
+
+
+def build_inverse_relationships():
+    inverse = {"include": {}, "extend": {}}
+    for relation_type, mapping in RELATIONSHIPS.items():
+        for source, targets in mapping.items():
+            for target in targets:
+                inverse[relation_type].setdefault(target, []).append(source)
+    return inverse
 
 
 def parse_use_cases(markdown_path):
@@ -213,8 +277,12 @@ def create_individual_use_case_images():
     border_color = (220, 224, 235)
     background = (255, 255, 255)
     panel_bg = (247, 249, 252)
+    relation_fill = (240, 252, 247)
+    relation_outline = (47, 133, 90)
 
     use_cases = parse_use_cases(MARKDOWN_PATH)
+    use_case_lookup = {use_case["code"]: use_case for use_case in use_cases}
+    inverse_relationships = build_inverse_relationships()
     generated_files = []
 
     for use_case in use_cases:
@@ -250,6 +318,51 @@ def create_individual_use_case_images():
         ellipse_text = f"{use_case['code']}\n{use_case['title']}"
         draw_centered_text(draw, ellipse_box, ellipse_text, body_font, text_color, 24)
 
+        relation_specs = []
+        for relation_type in ("include", "extend"):
+            for target_code in RELATIONSHIPS[relation_type].get(use_case["code"], []):
+                if target_code in use_case_lookup:
+                    relation_specs.append((relation_type, "outgoing", target_code, use_case_lookup[target_code]["title"]))
+            for source_code in inverse_relationships[relation_type].get(use_case["code"], []):
+                if source_code in use_case_lookup:
+                    relation_specs.append((relation_type, "incoming", source_code, use_case_lookup[source_code]["title"]))
+
+        relation_boxes = [
+            (700, 270, 1010, 365),
+            (700, 625, 1010, 720),
+            (500, 615, 760, 710),
+            (930, 615, 1190, 710),
+        ]
+
+        for index, (relation_type, direction, related_code, related_title) in enumerate(relation_specs[:4]):
+            box = relation_boxes[index]
+            relation_label = f"{related_code}\n{related_title}"
+            draw_relation_ellipse(draw, box, relation_label, relation_fill, relation_outline, text_color, small_font)
+
+            main_center = ((ellipse_box[0] + ellipse_box[2]) / 2, (ellipse_box[1] + ellipse_box[3]) / 2)
+            related_center = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)
+            if direction == "outgoing":
+                start = related_center
+                end = main_center
+            else:
+                start = main_center
+                end = related_center
+            draw_dashed_line(draw, start, end, relation_outline, width=3)
+            draw_arrow_head(draw, end, start, relation_outline)
+
+            mid_x = (start[0] + end[0]) / 2
+            mid_y = (start[1] + end[1]) / 2
+            label = f"<<{relation_type}>>"
+            label_box = draw.textbbox((0, 0), label, font=small_font)
+            label_width = label_box[2] - label_box[0]
+            draw.rounded_rectangle(
+                [(mid_x - label_width / 2 - 10, mid_y - 18), (mid_x + label_width / 2 + 10, mid_y + 12)],
+                radius=10,
+                fill=background,
+                outline=border_color,
+            )
+            draw.text((mid_x - label_width / 2, mid_y - 14), label, fill=relation_outline, font=small_font)
+
         for position in actor_positions:
             draw.line([(position["hand_x"], position["hand_y"]), (ellipse_box[0], (ellipse_box[1] + ellipse_box[3]) / 2)], fill=secondary_color, width=3)
 
@@ -284,7 +397,7 @@ def create_individual_use_case_images():
         legend_box = (530, 795, 1135, 900)
         draw.rounded_rectangle([(legend_box[0], legend_box[1]), (legend_box[2], legend_box[3])], radius=18, fill=(249, 250, 252), outline=border_color, width=2)
         draw.text((legend_box[0] + 22, legend_box[1] + 16), "Diagram Meaning", fill=secondary_color, font=section_font)
-        legend_text = "Actor interacts with this system behavior through the highlighted use case inside the NHEO system boundary."
+        legend_text = "Actor interacts with the highlighted use case. Dashed arrows show related use cases through <<include>> or <<extend>> relationships when applicable."
         legend_lines = wrap_lines(legend_text, 72)
         y = legend_box[1] + 52
         for line in legend_lines:

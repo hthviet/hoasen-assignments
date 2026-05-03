@@ -239,6 +239,18 @@ graph TB
     Admin -->|participates| UC19
     Admin -->|participates| UC20
     Admin -->|participates| UC21
+
+    UC6 -. "include" .-> UC5
+    UC7 -. "include" .-> UC5
+    UC13 -. "include" .-> UC10
+    UC14 -. "include" .-> UC13
+
+    UC8 -. "extend" .-> UC5
+    UC9 -. "extend" .-> UC8
+    UC11 -. "extend" .-> UC10
+    UC12 -. "extend" .-> UC10
+    UC16 -. "extend" .-> UC15
+    UC20 -. "extend" .-> UC19
     
     style Actors fill:#e1f5ff
     style AuthenticationUC fill:#f3e5f5
@@ -247,6 +259,11 @@ graph TB
     style CheckoutUC fill:#fce4ec
     style AdminUC fill:#f1f8e9
             </div>
+            <p style="margin-top: 18px; color: #666;">
+                The diagram now distinguishes direct actor participation from UML relationship links. Dashed arrows labeled
+                <strong>&lt;&lt;include&gt;&gt;</strong> show mandatory reused behavior, while dashed arrows labeled
+                <strong>&lt;&lt;extend&gt;&gt;</strong> show optional or drill-down behavior.
+            </p>
         </div>
         
         <div class="use-cases-section">
