@@ -6,20 +6,21 @@ A full-stack e-commerce application for laptop sales featuring a .NET backend, w
 
 ```
 NHEO/
-├── PT_WEB/                   # ASP.NET Core backend & web frontend
-│   └── LaptopStoreWeb/       # Main ASP.NET application
-│       ├── Controllers/      # API and page controllers
-│       ├── Models/           # Database models
-│       ├── Views/            # Razor pages
-│       ├── wwwroot/          # Static files (CSS, JS, images)
-│       └── Data/             # Database context and migrations
-├── PT_MOBILE_RN/             # React Native mobile app (Expo)
-│   ├── src/
-│   │   ├── screens/          # App screens (Home, Cart, Orders, etc.)
-│   │   ├── components/       # Reusable React Native components
-│   │   ├── context/          # Auth and Cart context providers
-│   │   └── api/              # API client configuration
-│   └── package.json
+├── APP/
+│   ├── PT_WEB/               # ASP.NET Core backend & web frontend
+│   │   └── LaptopStoreWeb/   # Main ASP.NET application
+│   │       ├── Controllers/  # API and page controllers
+│   │       ├── Models/       # Database models
+│   │       ├── Views/        # Razor pages
+│   │       ├── wwwroot/      # Static files (CSS, JS, images)
+│   │       └── Data/         # Database context and migrations
+│   └── PT_MOBILE_RN/         # React Native mobile app (Expo)
+│       ├── src/
+│       │   ├── screens/      # App screens (Home, Cart, Orders, etc.)
+│       │   ├── components/   # Reusable React Native components
+│       │   ├── context/      # Auth and Cart context providers
+│       │   └── api/          # API client configuration
+│       └── package.json
 ├── start-backend.sh          # Script to start ASP.NET backend
 └── start-mobile-stack.sh     # Combined backend + Expo mobile startup
 
@@ -63,7 +64,7 @@ NHEO/
 
 1. Navigate to PT_WEB:
    ```bash
-   cd PT_WEB/LaptopStoreWeb
+   cd APP/PT_WEB/LaptopStoreWeb
    ```
 
 2. Configure database connection in `appsettings.Development.json`:
@@ -90,7 +91,7 @@ NHEO/
 
 1. Navigate to PT_MOBILE_RN:
    ```bash
-   cd PT_MOBILE_RN
+   cd APP/PT_MOBILE_RN
    npm install
    ```
 

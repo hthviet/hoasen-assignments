@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs/NHEO"
 BACKEND_SCRIPT="$ROOT_DIR/start-backend.sh"
-RN_DIR="$ROOT_DIR/PT_MOBILE_RN"
+RN_DIR="$ROOT_DIR/APP/PT_MOBILE_RN"
 BACKEND_PORT=5226
 BACKEND_LOG="/tmp/pt_backend.log"
 DEFAULT_EXPO_PORT=8081
