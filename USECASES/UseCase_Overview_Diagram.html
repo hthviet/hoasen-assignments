@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NHEO Use Case Overview Diagram</title>
+  <title>Use Case Overview Diagram</title>
   <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
   <style>
     * { box-sizing: border-box; }
@@ -14,10 +14,10 @@
       color: #233044;
     }
     .page {
-      width: 1800px;
-      min-height: 1200px;
+      width: 2200px;
+      min-height: 1400px;
       margin: 0 auto;
-      padding: 48px;
+      padding: 56px;
     }
     .hero {
       background: white;
@@ -84,14 +84,14 @@
 <body>
   <div class="page">
     <section class="hero">
-      <div class="eyebrow">NHEO Platform</div>
+      <div class="eyebrow">System Overview</div>
       <h1>Use Case Overview Diagram</h1>
       <div class="subtext">Actor participation plus system-level include and extend relationships in one overview.</div>
     </section>
 
     <section class="diagram-shell">
       <div class="mermaid">
-graph TB
+graph LR
     subgraph Actors
         Guest["Guest User"]
         Customer["Registered Customer"]
@@ -99,39 +99,44 @@ graph TB
     end
 
     subgraph AuthenticationUC["Authentication & Account"]
-        UC1(["Register New Account"])
-        UC2(["Login to Account"])
-        UC3(["View Profile"])
-        UC4(["Logout from Account"])
+    direction TB
+    UC1(["Register\nNew Account"])
+    UC2(["Login to\nAccount"])
+    UC3(["View\nProfile"])
+    UC4(["Logout from\nAccount"])
     end
 
     subgraph ProductUC["Product Catalog"]
-        UC5(["Browse Product Catalog"])
-        UC6(["Search Products"])
-        UC7(["Filter & Sort Products"])
-        UC8(["View Product Details"])
+    direction TB
+    UC5(["Browse Product\nCatalog"])
+    UC6(["Search\nProducts"])
+    UC7(["Filter and Sort\nProducts"])
+    UC8(["View Product\nDetails"])
     end
 
     subgraph CartUC["Shopping Cart"]
-        UC9(["Add Product to Cart"])
-        UC10(["View Shopping Cart"])
-        UC11(["Modify Cart Quantity"])
-        UC12(["Remove from Cart"])
+    direction TB
+    UC9(["Add Product\nto Cart"])
+    UC10(["View Shopping\nCart"])
+    UC11(["Modify Cart\nQuantity"])
+    UC12(["Remove from\nCart"])
     end
 
     subgraph CheckoutUC["Checkout & Orders"]
-        UC13(["Initiate Checkout"])
-        UC14(["Place Order"])
-        UC15(["View Order History"])
-        UC16(["View Order Details"])
+    direction TB
+    UC13(["Initiate\nCheckout"])
+    UC14(["Place\nOrder"])
+    UC15(["View Order\nHistory"])
+    UC16(["View Order\nDetails"])
     end
 
     subgraph AdminUC["Admin Management"]
-        UC17(["Access Admin Dashboard"])
-        UC18(["Manage Products"])
-        UC19(["Track Orders"])
-        UC20(["Update Order Status"])
-        UC21(["View Revenue Reports"])
+    direction TB
+    UC17(["Access Admin\nDashboard"])
+    UC18(["Manage\nProducts"])
+    UC19(["Track\nOrders"])
+    UC20(["Update Order\nStatus"])
+    UC21(["View Revenue\nReports"])
     end
 
     Guest --> UC1
@@ -167,17 +172,17 @@ graph TB
     Admin --> UC20
     Admin --> UC21
 
-    UC6 -. "include" .-> UC5
-    UC7 -. "include" .-> UC5
-    UC13 -. "include" .-> UC10
-    UC14 -. "include" .-> UC13
+    UC6 -. "inc" .-> UC5
+    UC7 -. "inc" .-> UC5
+    UC13 -. "inc" .-> UC10
+    UC14 -. "inc" .-> UC13
 
-    UC8 -. "extend" .-> UC5
-    UC9 -. "extend" .-> UC8
-    UC11 -. "extend" .-> UC10
-    UC12 -. "extend" .-> UC10
-    UC16 -. "extend" .-> UC15
-    UC20 -. "extend" .-> UC19
+    UC8 -. "ext" .-> UC5
+    UC9 -. "ext" .-> UC8
+    UC11 -. "ext" .-> UC10
+    UC12 -. "ext" .-> UC10
+    UC16 -. "ext" .-> UC15
+    UC20 -. "ext" .-> UC19
 
     style Actors fill:#e6f0ff,stroke:#7a8de8,stroke-width:2px
     style AuthenticationUC fill:#f7edff,stroke:#b28ae6,stroke-width:2px
@@ -188,12 +193,12 @@ graph TB
       </div>
       <div class="legend">
         <div class="chip">Solid line: actor participates directly in use case</div>
-        <div class="chip"><span class="line"></span>Dashed line: include or extend relationship</div>
+        <div class="chip"><span class="line"></span>Dashed line: inc = include, ext = extend</div>
       </div>
     </section>
   </div>
   <script>
-    mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { useMaxWidth: true, htmlLabels: true } });
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { useMaxWidth: false, htmlLabels: true, nodeSpacing: 55, rankSpacing: 85, curve: 'basis' } });
   </script>
 </body>
 </html>

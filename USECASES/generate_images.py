@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate use case images for the NHEO project."""
+"""Generate use case images for the platform use case documents."""
 
 from PIL import Image, ImageDraw, ImageFont
 import os
@@ -154,6 +154,21 @@ def draw_relation_ellipse(draw, box, title, fill, outline, text_color, font):
     draw_centered_text(draw, box, title, font, text_color, 18)
 
 
+def ellipse_boundary_point(box, toward_point):
+    center_x = (box[0] + box[2]) / 2
+    center_y = (box[1] + box[3]) / 2
+    radius_x = (box[2] - box[0]) / 2
+    radius_y = (box[3] - box[1]) / 2
+
+    dx = toward_point[0] - center_x
+    dy = toward_point[1] - center_y
+    if dx == 0 and dy == 0:
+        return (center_x, center_y)
+
+    scale = 1 / ((dx * dx) / (radius_x * radius_x) + (dy * dy) / (radius_y * radius_y)) ** 0.5
+    return (center_x + dx * scale, center_y + dy * scale)
+
+
 def build_inverse_relationships():
     inverse = {"include": {}, "extend": {}}
     for relation_type, mapping in RELATIONSHIPS.items():
@@ -261,6 +276,24 @@ def render_list_block(draw, x, y, items, font, fill, wrap_width, bullet=None, sp
     return y
 
 
+def measure_list_block_height(items, font, wrap_width, bullet=None, spacing=10):
+    total_height = 0
+    for item in items:
+        content = item
+        if bullet and item.startswith(("- ", "* ")):
+            content = item[2:].strip()
+        elif re.match(r"^\d+\.\s+", item):
+            _, content = item.split(".", 1)
+            content = content.strip()
+
+        wrapped = wrap_lines(content, wrap_width)
+        if not wrapped:
+            continue
+        total_height += len(wrapped) * (font.size + spacing)
+        total_height += 4
+    return total_height
+
+
 def create_individual_use_case_images():
     os.makedirs(INDIVIDUAL_DIR, exist_ok=True)
 
@@ -287,7 +320,7 @@ def create_individual_use_case_images():
 
     for use_case in use_cases:
         width = 1600
-        height = 980
+        height = 1900
         margin = 60
 
         temp_img = Image.new("RGB", (width, height), color=background)
@@ -299,21 +332,29 @@ def create_individual_use_case_images():
         draw.text((margin, 96), use_case["title"], fill=text_color, font=title_font)
         draw.text((margin, 138), f"Category: {use_case['category']}", fill=secondary_color, font=subtitle_font)
 
-        actor_names = parse_actor_names(use_case["actors"])
-        actor_positions = []
-        actor_start_x = 160
-        actor_gap = 170
-        for index, actor_name in enumerate(actor_names[:3]):
-            actor_positions.append(
-                draw_actor(draw, actor_start_x + index * actor_gap, 310, actor_name, secondary_color, text_color, body_font)
-            )
-
-        system_box = (470, 240, 1180, 760)
+        system_box = (340, 170, 1340, 840)
         draw.rounded_rectangle([(system_box[0], system_box[1]), (system_box[2], system_box[3])], radius=28, outline=primary_color, width=4)
         draw.rounded_rectangle([(system_box[0] + 24, system_box[1] + 18), (system_box[0] + 270, system_box[1] + 66)], radius=14, fill=panel_bg, outline=border_color)
-        draw.text((system_box[0] + 42, system_box[1] + 28), "NHEO E-Commerce System", fill=primary_color, font=section_font)
+        draw.text((system_box[0] + 42, system_box[1] + 28), "E-Commerce System", fill=primary_color, font=section_font)
 
-        ellipse_box = (640, 410, 1035, 580)
+        actor_names = parse_actor_names(use_case["actors"])
+        actor_positions = []
+        shown_actors = actor_names[:3]
+        lane_left = 90
+        lane_right = system_box[0] - 90
+        if len(shown_actors) == 1:
+            actor_centers = [lane_left + 70]
+        else:
+            span = max(lane_right - lane_left, 1)
+            step = span / (len(shown_actors) - 1)
+            actor_centers = [lane_left + index * step for index in range(len(shown_actors))]
+
+        for index, actor_name in enumerate(shown_actors):
+            actor_positions.append(
+                draw_actor(draw, actor_centers[index], 310, actor_name, secondary_color, text_color, body_font)
+            )
+
+        ellipse_box = (670, 430, 1030, 590)
         draw.ellipse([(ellipse_box[0], ellipse_box[1]), (ellipse_box[2], ellipse_box[3])], outline=secondary_color, width=4, fill=(252, 245, 255))
         ellipse_text = f"{use_case['code']}\n{use_case['title']}"
         draw_centered_text(draw, ellipse_box, ellipse_text, body_font, text_color, 24)
@@ -328,10 +369,10 @@ def create_individual_use_case_images():
                     relation_specs.append((relation_type, "incoming", source_code, use_case_lookup[source_code]["title"]))
 
         relation_boxes = [
-            (700, 270, 1010, 365),
-            (700, 625, 1010, 720),
-            (500, 615, 760, 710),
-            (930, 615, 1190, 710),
+            (700, 240, 1000, 330),
+            (700, 700, 1000, 790),
+            (450, 690, 760, 780),
+            (920, 690, 1230, 780),
         ]
 
         for index, (relation_type, direction, related_code, related_title) in enumerate(relation_specs[:4]):
@@ -342,17 +383,17 @@ def create_individual_use_case_images():
             main_center = ((ellipse_box[0] + ellipse_box[2]) / 2, (ellipse_box[1] + ellipse_box[3]) / 2)
             related_center = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)
             if direction == "outgoing":
-                start = related_center
-                end = main_center
+                start = ellipse_boundary_point(box, main_center)
+                end = ellipse_boundary_point(ellipse_box, related_center)
             else:
-                start = main_center
-                end = related_center
+                start = ellipse_boundary_point(ellipse_box, related_center)
+                end = ellipse_boundary_point(box, main_center)
             draw_dashed_line(draw, start, end, relation_outline, width=3)
             draw_arrow_head(draw, end, start, relation_outline)
 
             mid_x = (start[0] + end[0]) / 2
             mid_y = (start[1] + end[1]) / 2
-            label = f"<<{relation_type}>>"
+            label = "inc" if relation_type == "include" else "ext"
             label_box = draw.textbbox((0, 0), label, font=small_font)
             label_width = label_box[2] - label_box[0]
             draw.rounded_rectangle(
@@ -370,7 +411,7 @@ def create_individual_use_case_images():
         note_width = 300
         sections = [
             ("Preconditions", use_case["preconditions"], "- "),
-            ("Main Flow", use_case["main_flow"][:4], None),
+            ("Main Flow", use_case["main_flow"], None),
             ("Alternative", use_case["alternative_flows"], "- "),
             ("Postconditions", use_case["postconditions"], "- "),
         ]
@@ -378,7 +419,13 @@ def create_individual_use_case_images():
         for title, items, bullet in sections:
             if not items:
                 continue
-            box_height = 120 if title == "Main Flow" else 110
+
+            content_items = items
+
+            content_height = measure_list_block_height(content_items, small_font, 32, bullet=bullet, spacing=6)
+            min_height = 120 if title == "Main Flow" else 110
+            box_height = max(min_height, 56 + content_height + 14)
+
             draw.rounded_rectangle(
                 [(note_x, note_y), (note_x + note_width, note_y + box_height)],
                 radius=18,
@@ -388,16 +435,13 @@ def create_individual_use_case_images():
             )
             draw.text((note_x + 18, note_y + 14), title, fill=secondary_color, font=section_font)
             content_y = note_y + 48
-            content_items = items
-            if title == "Main Flow" and len(use_case["main_flow"]) > 4:
-                content_items = items + [f"... {len(use_case['main_flow']) - 4} more step(s)"]
             content_y = render_list_block(draw, note_x + 18, content_y, content_items, small_font, text_color, 32, bullet=bullet, spacing=6)
             note_y += box_height + 20
 
-        legend_box = (530, 795, 1135, 900)
+        legend_box = (530, 940, 1135, 1060)
         draw.rounded_rectangle([(legend_box[0], legend_box[1]), (legend_box[2], legend_box[3])], radius=18, fill=(249, 250, 252), outline=border_color, width=2)
         draw.text((legend_box[0] + 22, legend_box[1] + 16), "Diagram Meaning", fill=secondary_color, font=section_font)
-        legend_text = "Actor interacts with the highlighted use case. Dashed arrows show related use cases through <<include>> or <<extend>> relationships when applicable."
+        legend_text = "Actor interacts with the highlighted use case. Dashed arrows show related use cases through inc or ext relationships when applicable."
         legend_lines = wrap_lines(legend_text, 72)
         y = legend_box[1] + 52
         for line in legend_lines:
@@ -448,7 +492,7 @@ def create_usecase_summary_image():
     line_height = 30
     
     # Title
-    draw.text((width//2 - 200, y_pos), "NHEO E-Commerce Platform", fill=primary_color, font=title_font)
+    draw.text((width//2 - 210, y_pos), "Laptop E-Commerce Platform", fill=primary_color, font=title_font)
     y_pos += 60
     
     draw.text((width//2 - 150, y_pos), "Use Cases Overview", fill=secondary_color, font=heading_font)
@@ -465,31 +509,31 @@ def create_usecase_summary_image():
     
     # Use Case Categories
     categories = [
-        ("🔐 Authentication & Account (4 UC)", [
+        ("Authentication & Account (4 UC)", [
             "UC-1.1: Register New Account",
             "UC-1.2: Login to Account",
             "UC-1.3: View Profile",
             "UC-1.4: Logout from Account"
         ]),
-        ("📦 Product Catalog (4 UC)", [
+        ("Product Catalog (4 UC)", [
             "UC-2.1: Browse Product Catalog",
             "UC-2.2: Search Products",
             "UC-2.3: Filter & Sort Products",
             "UC-2.4: View Product Details"
         ]),
-        ("🛒 Shopping Cart (4 UC)", [
+        ("Shopping Cart (4 UC)", [
             "UC-3.1: Add Product to Cart",
             "UC-3.2: View Shopping Cart",
             "UC-3.3: Modify Cart Quantity",
             "UC-3.4: Remove from Cart"
         ]),
-        ("💳 Checkout & Orders (4 UC)", [
+        ("Checkout & Orders (4 UC)", [
             "UC-4.1: Initiate Checkout",
             "UC-4.2: Place Order",
             "UC-5.1: View Order History",
             "UC-5.2: View Order Details"
         ]),
-        ("⚙️ Admin Management (5 UC)", [
+        ("Admin Management (5 UC)", [
             "UC-6.1: Access Admin Dashboard",
             "UC-6.2: Manage Products (CRUD)",
             "UC-6.3: Track Orders",
@@ -513,7 +557,7 @@ def create_usecase_summary_image():
     # Footer
     footer_y = height - 60
     draw.line([(40, footer_y), (width-40, footer_y)], fill=primary_color, width=1)
-    footer_text = "NHEO Laptop E-Commerce Platform | Use Cases Document | May 3, 2026"
+    footer_text = "Laptop E-Commerce Platform | Use Cases Document | May 3, 2026"
     draw.text((width//2 - 350, footer_y + 15), footer_text, fill=text_color, font=normal_font)
     
     # Save image
@@ -548,17 +592,17 @@ def create_actors_image():
     # Actor boxes
     actors = [
         {
-            "title": "👤 Guest User",
+            "title": "Guest User",
             "desc": "Browse products\nAdd to cart\nNo registration",
             "x": 80
         },
         {
-            "title": "👤 Registered Customer",
+            "title": "Registered Customer",
             "desc": "Place orders\nTrack history\nManage account",
             "x": 440
         },
         {
-            "title": "👨‍💼 Administrator",
+            "title": "Administrator",
             "desc": "Manage catalog\nTrack orders\nView reports",
             "x": 880
         }

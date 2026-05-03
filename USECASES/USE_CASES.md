@@ -1,8 +1,8 @@
-# NHEO Laptop E-Commerce Platform - Use Cases
+# Laptop E-Commerce Platform - Use Cases
 
 ## Document Overview
 
-This document describes the functional requirements and user interactions for the NHEO (Hoàn Sen) laptop e-commerce platform. The system supports customers browsing and purchasing laptops through web and mobile interfaces, as well as administrators managing products and orders.
+This document describes the functional requirements and user interactions for a laptop e-commerce platform. The system supports customers browsing and purchasing laptops through web and mobile interfaces, as well as administrators managing products and orders.
 
 ## System Actors
 
@@ -260,7 +260,9 @@ This document describes the functional requirements and user interactions for th
 
 #### UC-4.2: Place Order
 **Actors:** Customer (Registered User)  
-**Preconditions:** Checkout screen displayed with filled details  
+**Preconditions:** 
+- User logged in
+- Checkout screen displayed with filled details  
 **Main Flow:**
 1. User clicks "Place Order" button
 2. System validates form fields (phone, address not empty)
@@ -314,7 +316,9 @@ This document describes the functional requirements and user interactions for th
 
 #### UC-5.2: View Order Details
 **Actors:** Customer (Registered User)  
-**Preconditions:** Order history displayed  
+**Preconditions:** 
+- User logged in
+- Order history displayed  
 **Main Flow:**
 1. User taps on order from history
 2. System retrieves detailed order information
@@ -357,7 +361,7 @@ This document describes the functional requirements and user interactions for th
 
 #### UC-6.2: Manage Products (Create/Read/Update)
 **Actors:** Administrator  
-**Preconditions:** Admin logged in  
+**Preconditions:** User logged in with administrator role  
 **Main Flow (Create):**
 1. Admin clicks "Add Product" button
 2. System displays product form with fields:
@@ -388,7 +392,7 @@ This document describes the functional requirements and user interactions for th
 
 #### UC-6.3: Track Orders
 **Actors:** Administrator  
-**Preconditions:** Admin logged in  
+**Preconditions:** User logged in with administrator role  
 **Main Flow:**
 1. Admin navigates to Orders management
 2. System displays all orders (not just user's)
@@ -405,7 +409,9 @@ This document describes the functional requirements and user interactions for th
 
 #### UC-6.4: Update Order Status
 **Actors:** Administrator  
-**Preconditions:** Order details displayed  
+**Preconditions:** 
+- User logged in with administrator role
+- Order details displayed  
 **Main Flow:**
 1. Admin clicks "Update Status" button
 2. System displays status dropdown (Pending → Processing → Shipped → Delivered)
@@ -419,7 +425,7 @@ This document describes the functional requirements and user interactions for th
 
 #### UC-6.5: View Revenue Reports
 **Actors:** Administrator  
-**Preconditions:** Admin logged in  
+**Preconditions:** User logged in with administrator role  
 **Main Flow:**
 1. Admin navigates to Reports section
 2. System displays revenue analytics:

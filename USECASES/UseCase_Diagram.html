@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NHEO E-Commerce Platform - Use Cases</title>
+    <title>Laptop E-Commerce Platform - Use Cases</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -142,7 +142,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>🛒 NHEO Laptop E-Commerce Platform</h1>
+            <h1>Laptop E-Commerce Platform</h1>
             <p>Use Cases & System Requirements</p>
         </header>
         
@@ -162,95 +162,100 @@
         </div>
         
         <div class="diagram-section">
-            <h2>📊 System Use Case Diagram</h2>
+            <h2>System Use Case Diagram</h2>
             <div class="mermaid">
-graph TB
+graph LR
     subgraph Actors
-        Guest["👤 Guest User"]
-        Customer["👤 Registered Customer"]
-        Admin["👨‍💼 Administrator"]
+        Guest["Guest User"]
+        Customer["Registered Customer"]
+        Admin["Administrator"]
     end
     
     subgraph AuthenticationUC["Authentication & Account"]
-        UC1["Register New Account"]
-        UC2["Login to Account"]
-        UC3["View Profile"]
-        UC4["Logout from Account"]
+        direction TB
+        UC1(["Register\nNew Account"])
+        UC2(["Login to\nAccount"])
+        UC3(["View\nProfile"])
+        UC4(["Logout from\nAccount"])
     end
     
     subgraph ProductUC["Product Catalog"]
-        UC5["Browse Product Catalog"]
-        UC6["Search Products"]
-        UC7["Filter & Sort Products"]
-        UC8["View Product Details"]
+        direction TB
+        UC5(["Browse Product\nCatalog"])
+        UC6(["Search\nProducts"])
+        UC7(["Filter and Sort\nProducts"])
+        UC8(["View Product\nDetails"])
     end
     
     subgraph CartUC["Shopping Cart"]
-        UC9["Add Product to Cart"]
-        UC10["View Shopping Cart"]
-        UC11["Modify Cart Quantity"]
-        UC12["Remove from Cart"]
+        direction TB
+        UC9(["Add Product\nto Cart"])
+        UC10(["View Shopping\nCart"])
+        UC11(["Modify Cart\nQuantity"])
+        UC12(["Remove from\nCart"])
     end
     
     subgraph CheckoutUC["Checkout & Orders"]
-        UC13["Initiate Checkout"]
-        UC14["Place Order"]
-        UC15["View Order History"]
-        UC16["View Order Details"]
+        direction TB
+        UC13(["Initiate\nCheckout"])
+        UC14(["Place\nOrder"])
+        UC15(["View Order\nHistory"])
+        UC16(["View Order\nDetails"])
     end
     
     subgraph AdminUC["Admin Management"]
-        UC17["Access Admin Dashboard"]
-        UC18["Manage Products"]
-        UC19["Track Orders"]
-        UC20["Update Order Status"]
-        UC21["View Revenue Reports"]
+        direction TB
+        UC17(["Access Admin\nDashboard"])
+        UC18(["Manage\nProducts"])
+        UC19(["Track\nOrders"])
+        UC20(["Update Order\nStatus"])
+        UC21(["View Revenue\nReports"])
     end
     
-    Guest -->|participates| UC1
-    Guest -->|participates| UC5
-    Guest -->|participates| UC6
-    Guest -->|participates| UC7
-    Guest -->|participates| UC8
-    Guest -->|participates| UC9
-    Guest -->|participates| UC10
-    Guest -->|participates| UC11
-    Guest -->|participates| UC12
-    Guest -->|participates| UC2
+    Guest --> UC1
+    Guest --> UC5
+    Guest --> UC6
+    Guest --> UC7
+    Guest --> UC8
+    Guest --> UC9
+    Guest --> UC10
+    Guest --> UC11
+    Guest --> UC12
+    Guest --> UC2
     
-    Customer -->|participates| UC2
-    Customer -->|participates| UC3
-    Customer -->|participates| UC4
-    Customer -->|participates| UC5
-    Customer -->|participates| UC6
-    Customer -->|participates| UC7
-    Customer -->|participates| UC8
-    Customer -->|participates| UC9
-    Customer -->|participates| UC10
-    Customer -->|participates| UC11
-    Customer -->|participates| UC12
-    Customer -->|participates| UC13
-    Customer -->|participates| UC14
-    Customer -->|participates| UC15
-    Customer -->|participates| UC16
+    Customer --> UC2
+    Customer --> UC3
+    Customer --> UC4
+    Customer --> UC5
+    Customer --> UC6
+    Customer --> UC7
+    Customer --> UC8
+    Customer --> UC9
+    Customer --> UC10
+    Customer --> UC11
+    Customer --> UC12
+    Customer --> UC13
+    Customer --> UC14
+    Customer --> UC15
+    Customer --> UC16
     
-    Admin -->|participates| UC17
-    Admin -->|participates| UC18
-    Admin -->|participates| UC19
-    Admin -->|participates| UC20
-    Admin -->|participates| UC21
+    Admin --> UC17
+    Admin --> UC18
+    Admin --> UC19
+    Admin --> UC20
+    Admin --> UC21
 
-    UC6 -. "include" .-> UC5
-    UC7 -. "include" .-> UC5
-    UC13 -. "include" .-> UC10
-    UC14 -. "include" .-> UC13
+    UC6 -. "inc" .-> UC5
+    UC7 -. "inc" .-> UC5
+    UC13 -. "inc" .-> UC10
+    UC14 -. "inc" .-> UC13
 
-    UC8 -. "extend" .-> UC5
-    UC9 -. "extend" .-> UC8
-    UC11 -. "extend" .-> UC10
-    UC12 -. "extend" .-> UC10
-    UC16 -. "extend" .-> UC15
-    UC20 -. "extend" .-> UC19
+    UC8 -. "ext" .-> UC5
+    UC9 -. "ext" .-> UC8
+    UC11 -. "ext" .-> UC10
+    UC12 -. "ext" .-> UC10
+    UC16 -. "ext" .-> UC15
+    UC20 -. "ext" .-> UC19
     
     style Actors fill:#e1f5ff
     style AuthenticationUC fill:#f3e5f5
@@ -261,34 +266,34 @@ graph TB
             </div>
             <p style="margin-top: 18px; color: #666;">
                 The diagram now distinguishes direct actor participation from UML relationship links. Dashed arrows labeled
-                <strong>&lt;&lt;include&gt;&gt;</strong> show mandatory reused behavior, while dashed arrows labeled
-                <strong>&lt;&lt;extend&gt;&gt;</strong> show optional or drill-down behavior.
+                <strong>inc</strong> show mandatory reused behavior, while dashed arrows labeled
+                <strong>ext</strong> show optional or drill-down behavior.
             </p>
         </div>
         
         <div class="use-cases-section">
-            <h2>👥 System Actors</h2>
+            <h2>System Actors</h2>
             <div class="actors-section">
                 <div class="actor-card">
-                    <h3>👤 Guest User</h3>
+                    <h3>Guest User</h3>
                     <p>Anonymous users who can browse products and add to cart without registration</p>
                 </div>
                 <div class="actor-card">
-                    <h3>👤 Registered Customer</h3>
+                    <h3>Registered Customer</h3>
                     <p>Authenticated users who can purchase items, place orders, and track order history</p>
                 </div>
                 <div class="actor-card">
-                    <h3>👨‍💼 Administrator</h3>
+                    <h3>Administrator</h3>
                     <p>System managers who control product catalog, orders, and view analytics</p>
                 </div>
             </div>
         </div>
         
         <div class="use-cases-section">
-            <h2>📋 Use Cases Summary</h2>
+            <h2>Use Cases Summary</h2>
             
             <div class="use-case-category">
-                <h3>🔐 Authentication & Account (4 Use Cases)</h3>
+                <h3>Authentication & Account (4 Use Cases)</h3>
                 <div class="use-case-item"><strong>UC-1.1:</strong> Register New Account</div>
                 <div class="use-case-item"><strong>UC-1.2:</strong> Login to Account</div>
                 <div class="use-case-item"><strong>UC-1.3:</strong> View Profile</div>
@@ -296,7 +301,7 @@ graph TB
             </div>
             
             <div class="use-case-category">
-                <h3>📦 Product Catalog (4 Use Cases)</h3>
+                <h3>Product Catalog (4 Use Cases)</h3>
                 <div class="use-case-item"><strong>UC-2.1:</strong> Browse Product Catalog (paginated)</div>
                 <div class="use-case-item"><strong>UC-2.2:</strong> Search Products by name/brand</div>
                 <div class="use-case-item"><strong>UC-2.3:</strong> Filter & Sort Products</div>
@@ -304,7 +309,7 @@ graph TB
             </div>
             
             <div class="use-case-category">
-                <h3>🛒 Shopping Cart (4 Use Cases)</h3>
+                <h3>Shopping Cart (4 Use Cases)</h3>
                 <div class="use-case-item"><strong>UC-3.1:</strong> Add Product to Cart</div>
                 <div class="use-case-item"><strong>UC-3.2:</strong> View Shopping Cart</div>
                 <div class="use-case-item"><strong>UC-3.3:</strong> Modify Cart Item Quantity</div>
@@ -312,7 +317,7 @@ graph TB
             </div>
             
             <div class="use-case-category">
-                <h3>💳 Checkout & Orders (4 Use Cases)</h3>
+                <h3>Checkout & Orders (4 Use Cases)</h3>
                 <div class="use-case-item"><strong>UC-4.1:</strong> Initiate Checkout</div>
                 <div class="use-case-item"><strong>UC-4.2:</strong> Place Order</div>
                 <div class="use-case-item"><strong>UC-5.1:</strong> View Order History</div>
@@ -320,7 +325,7 @@ graph TB
             </div>
             
             <div class="use-case-category">
-                <h3>⚙️ Admin Management (5 Use Cases)</h3>
+                <h3>Admin Management (5 Use Cases)</h3>
                 <div class="use-case-item"><strong>UC-6.1:</strong> Access Admin Dashboard</div>
                 <div class="use-case-item"><strong>UC-6.2:</strong> Manage Products (CRUD)</div>
                 <div class="use-case-item"><strong>UC-6.3:</strong> Track Orders</div>
@@ -330,7 +335,7 @@ graph TB
         </div>
         
         <div class="use-cases-section">
-            <h2>🎯 Key Features by Actor</h2>
+            <h2>Key Features by Actor</h2>
             <div style="display: grid; gap: 20px;">
                 <div style="background: #f0f7ff; padding: 20px; border-radius: 8px;">
                     <h3 style="color: #667eea; margin-bottom: 10px;">Guest Users Can:</h3>
@@ -368,13 +373,13 @@ graph TB
         </div>
         
         <footer>
-            <p>NHEO Laptop E-Commerce Platform | Use Cases Document | May 3, 2026</p>
+            <p>Laptop E-Commerce Platform | Use Cases Document | May 3, 2026</p>
             <p style="margin-top: 10px; color: #999;">GitHub: https://github.com/hthviet/hoasen-assignments</p>
         </footer>
     </div>
     
     <script>
-        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { useMaxWidth: true, htmlLabels: true, nodeSpacing: 55, rankSpacing: 85, curve: 'basis' } });
         mermaid.contentLoaded();
     </script>
 </body>
