@@ -4,7 +4,6 @@ set -euo pipefail
 
 ROOT_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs/NHEO"
 BACKEND_SCRIPT="$ROOT_DIR/start-backend.sh"
-EMULATOR_SCRIPT="$ROOT_DIR/PT_MOBILE/start-emulator.sh"
 RN_DIR="$ROOT_DIR/PT_MOBILE_RN"
 BACKEND_PORT=5226
 BACKEND_LOG="/tmp/pt_backend.log"
@@ -72,11 +71,6 @@ for i in {1..60}; do
     exit 1
   fi
 done
-
-if [[ -x "$EMULATOR_SCRIPT" ]]; then
-  echo "Starting emulator helper..."
-  "$EMULATOR_SCRIPT" || true
-fi
 
 echo "Starting Expo Android app..."
 cd "$RN_DIR"

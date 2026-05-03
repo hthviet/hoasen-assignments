@@ -20,10 +20,6 @@ NHEO/
 │   │   ├── context/          # Auth and Cart context providers
 │   │   └── api/              # API client configuration
 │   └── package.json
-├── PT_MOBILE/                # Android-specific files
-│   ├── gradle files for Android build
-│   ├── start-emulator.sh     # Script to start Android emulator
-│   └── launch-android.sh     # Script to launch app on emulator
 ├── start-backend.sh          # Script to start ASP.NET backend
 └── start-mobile-stack.sh     # Combined backend + Expo mobile startup
 
@@ -42,10 +38,6 @@ NHEO/
 - **State Management**: React Context
 - **Navigation**: React Navigation
 - **HTTP Client**: Axios
-
-### Android Native
-- **Build Tool**: Gradle
-- **Target API**: Android API 35
 
 ## Features
 
@@ -117,7 +109,6 @@ To start both backend and mobile app simultaneously:
 
 This script will:
 - Start ASP.NET backend on port 5226
-- Start Android emulator (if configured)
 - Launch Expo app on Metro bundler
 - Handle port conflicts automatically
 
@@ -190,7 +181,6 @@ Key tables:
 ### Emulator won't launch
 - Verify Android SDK is installed
 - Run `emulator -avd Pixel_7_API_35` to start manually
-- Check `PT_MOBILE/start-emulator.sh` configuration
 
 ## License
 
