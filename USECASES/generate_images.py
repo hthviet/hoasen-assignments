@@ -37,6 +37,68 @@ def sanitize_filename(value):
     return safe.strip("_")
 
 
+def parse_actor_names(actor_lines):
+    combined = " ".join(actor_lines).strip()
+    if not combined:
+        return ["User"]
+
+    actor_names = []
+    lowered = combined.lower()
+    if "guest" in lowered:
+        actor_names.append("Guest User")
+    if "customer" in lowered or "registered user" in lowered:
+        actor_names.append("Customer")
+    if "administrator" in lowered or "admin" in lowered:
+        actor_names.append("Administrator")
+
+    if not actor_names:
+        actor_names.append(combined)
+
+    deduped = []
+    for actor in actor_names:
+        if actor not in deduped:
+            deduped.append(actor)
+    return deduped
+
+
+def draw_centered_text(draw, box, text, font, fill, max_width_chars):
+    lines = wrap_lines(text, max_width_chars)
+    line_height = font.size + 6
+    total_height = len(lines) * line_height
+    x0, y0, x1, y1 = box
+    y = y0 + ((y1 - y0 - total_height) / 2)
+    for line in lines:
+        bbox = draw.textbbox((0, 0), line, font=font)
+        line_width = bbox[2] - bbox[0]
+        x = x0 + ((x1 - x0 - line_width) / 2)
+        draw.text((x, y), line, fill=fill, font=font)
+        y += line_height
+
+
+def draw_actor(draw, center_x, top_y, name, line_color, text_color, font):
+    head_radius = 22
+    head_center_y = top_y + head_radius
+    draw.ellipse(
+        [(center_x - head_radius, top_y), (center_x + head_radius, top_y + head_radius * 2)],
+        outline=line_color,
+        width=3,
+    )
+    torso_top = top_y + head_radius * 2
+    torso_bottom = torso_top + 70
+    draw.line([(center_x, torso_top), (center_x, torso_bottom)], fill=line_color, width=3)
+    draw.line([(center_x - 36, torso_top + 18), (center_x + 36, torso_top + 18)], fill=line_color, width=3)
+    draw.line([(center_x, torso_bottom), (center_x - 28, torso_bottom + 42)], fill=line_color, width=3)
+    draw.line([(center_x, torso_bottom), (center_x + 28, torso_bottom + 42)], fill=line_color, width=3)
+
+    name_box = draw.textbbox((0, 0), name, font=font)
+    name_width = name_box[2] - name_box[0]
+    draw.text((center_x - name_width / 2, torso_bottom + 58), name, fill=text_color, font=font)
+    return {
+        "hand_x": center_x + 36,
+        "hand_y": torso_top + 18,
+    }
+
+
 def parse_use_cases(markdown_path):
     with open(markdown_path, "r", encoding="utf-8") as handle:
         lines = handle.readlines()
@@ -156,47 +218,84 @@ def create_individual_use_case_images():
     generated_files = []
 
     for use_case in use_cases:
-        width = 1400
+        width = 1600
+        height = 980
         margin = 60
-        y = margin
 
-        temp_img = Image.new("RGB", (width, 4000), color=background)
+        temp_img = Image.new("RGB", (width, height), color=background)
         draw = ImageDraw.Draw(temp_img)
 
-        draw.rounded_rectangle([(30, 30), (width - 30, 220)], radius=24, fill=(243, 246, 255))
-        draw.text((margin, y), use_case["code"], fill=primary_color, font=subtitle_font)
-        y += 40
-        draw.text((margin, y), use_case["title"], fill=text_color, font=title_font)
-        y += 56
-        draw.text((margin, y), f"Category: {use_case['category']}", fill=secondary_color, font=subtitle_font)
-        y += 56
+        draw.rounded_rectangle([(24, 24), (width - 24, height - 24)], radius=28, outline=border_color, width=2, fill=background)
+        draw.rounded_rectangle([(40, 34), (width - 40, 170)], radius=24, fill=(243, 246, 255), outline=(226, 232, 247), width=2)
+        draw.text((margin, 58), use_case["code"], fill=primary_color, font=subtitle_font)
+        draw.text((margin, 96), use_case["title"], fill=text_color, font=title_font)
+        draw.text((margin, 138), f"Category: {use_case['category']}", fill=secondary_color, font=subtitle_font)
 
+        actor_names = parse_actor_names(use_case["actors"])
+        actor_positions = []
+        actor_start_x = 160
+        actor_gap = 170
+        for index, actor_name in enumerate(actor_names[:3]):
+            actor_positions.append(
+                draw_actor(draw, actor_start_x + index * actor_gap, 310, actor_name, secondary_color, text_color, body_font)
+            )
+
+        system_box = (470, 240, 1180, 760)
+        draw.rounded_rectangle([(system_box[0], system_box[1]), (system_box[2], system_box[3])], radius=28, outline=primary_color, width=4)
+        draw.rounded_rectangle([(system_box[0] + 24, system_box[1] + 18), (system_box[0] + 270, system_box[1] + 66)], radius=14, fill=panel_bg, outline=border_color)
+        draw.text((system_box[0] + 42, system_box[1] + 28), "NHEO E-Commerce System", fill=primary_color, font=section_font)
+
+        ellipse_box = (640, 410, 1035, 580)
+        draw.ellipse([(ellipse_box[0], ellipse_box[1]), (ellipse_box[2], ellipse_box[3])], outline=secondary_color, width=4, fill=(252, 245, 255))
+        ellipse_text = f"{use_case['code']}\n{use_case['title']}"
+        draw_centered_text(draw, ellipse_box, ellipse_text, body_font, text_color, 24)
+
+        for position in actor_positions:
+            draw.line([(position["hand_x"], position["hand_y"]), (ellipse_box[0], (ellipse_box[1] + ellipse_box[3]) / 2)], fill=secondary_color, width=3)
+
+        note_x = 1220
+        note_width = 300
         sections = [
-            ("Actors", use_case["actors"], None),
             ("Preconditions", use_case["preconditions"], "- "),
-            ("Main Flow", use_case["main_flow"], None),
-            ("Alternative Flows", use_case["alternative_flows"], "- "),
+            ("Main Flow", use_case["main_flow"][:4], None),
+            ("Alternative", use_case["alternative_flows"], "- "),
             ("Postconditions", use_case["postconditions"], "- "),
         ]
-
+        note_y = 250
         for title, items, bullet in sections:
             if not items:
                 continue
-            y += 10
-            draw.rounded_rectangle([(margin - 16, y - 8), (width - margin, y + 38)], radius=12, fill=panel_bg, outline=border_color)
-            draw.text((margin, y), title, fill=secondary_color, font=section_font)
-            y += 52
-            wrap_width = 90 if title != "Actors" else 96
-            y = render_list_block(draw, margin + 8, y, items, body_font, text_color, wrap_width, bullet=bullet)
+            box_height = 120 if title == "Main Flow" else 110
+            draw.rounded_rectangle(
+                [(note_x, note_y), (note_x + note_width, note_y + box_height)],
+                radius=18,
+                fill=panel_bg,
+                outline=border_color,
+                width=2,
+            )
+            draw.text((note_x + 18, note_y + 14), title, fill=secondary_color, font=section_font)
+            content_y = note_y + 48
+            content_items = items
+            if title == "Main Flow" and len(use_case["main_flow"]) > 4:
+                content_items = items + [f"... {len(use_case['main_flow']) - 4} more step(s)"]
+            content_y = render_list_block(draw, note_x + 18, content_y, content_items, small_font, text_color, 32, bullet=bullet, spacing=6)
+            note_y += box_height + 20
 
-        footer_y = y + 10
+        legend_box = (530, 795, 1135, 900)
+        draw.rounded_rectangle([(legend_box[0], legend_box[1]), (legend_box[2], legend_box[3])], radius=18, fill=(249, 250, 252), outline=border_color, width=2)
+        draw.text((legend_box[0] + 22, legend_box[1] + 16), "Diagram Meaning", fill=secondary_color, font=section_font)
+        legend_text = "Actor interacts with this system behavior through the highlighted use case inside the NHEO system boundary."
+        legend_lines = wrap_lines(legend_text, 72)
+        y = legend_box[1] + 52
+        for line in legend_lines:
+            draw.text((legend_box[0] + 22, y), line, fill=text_color, font=small_font)
+            y += small_font.size + 6
+
+        footer_y = height - 58
         draw.line([(margin, footer_y), (width - margin, footer_y)], fill=border_color, width=2)
-        footer_text = "NHEO Laptop E-Commerce Platform"
-        draw.text((margin, footer_y + 14), footer_text, fill=muted_color, font=small_font)
-        y = footer_y + 44
+        draw.text((margin, footer_y + 14), "Generated from USE_CASES.md", fill=muted_color, font=small_font)
 
-        final_height = max(y + margin, 500)
-        final_img = temp_img.crop((0, 0, width, final_height))
+        final_img = temp_img
 
         file_name = f"{use_case['code']}_{sanitize_filename(use_case['title'])}.png"
         output_path = os.path.join(INDIVIDUAL_DIR, file_name)
