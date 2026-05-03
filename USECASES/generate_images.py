@@ -5,6 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import re
 import textwrap
+import unicodedata
 
 ROOT_DIR = "/Users/viethuynh/Library/Mobile Documents/com~apple~CloudDocs/NHEO/USECASES"
 MARKDOWN_PATH = os.path.join(ROOT_DIR, "USE_CASES.md")
@@ -35,9 +36,37 @@ def load_font(size):
         return ImageFont.load_default()
 
 
+def normalize_display_text(text):
+    if text is None:
+        return ""
+
+    replacements = {
+        "→": "->",
+        "←": "<-",
+        "“": '"',
+        "”": '"',
+        "‘": "'",
+        "’": "'",
+        "–": "-",
+        "—": "-",
+        "•": "-",
+        "…": "...",
+    }
+
+    normalized = text
+    for source, target in replacements.items():
+        normalized = normalized.replace(source, target)
+
+    # Remove any remaining unsupported combining/special chars that can render as tofu boxes.
+    normalized = unicodedata.normalize("NFKD", normalized)
+    normalized = normalized.encode("ascii", "ignore").decode("ascii")
+    return normalized
+
+
 def wrap_lines(text, width):
     if not text:
         return []
+    text = normalize_display_text(text)
     pieces = []
     for raw_line in text.split("\n"):
         stripped = raw_line.strip()
