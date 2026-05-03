@@ -45,11 +45,11 @@ export default function ProductDetailScreen({ route, navigation }) {
         <Text style={styles.brand}>{product.brand}</Text>
         <Text style={styles.name}>{product.name}</Text>
         <Text style={styles.price}>{formatPrice(product.price)}</Text>
-        <Text style={styles.stockLabel}>
+        {/* <Text style={styles.stockLabel}>
           {product.stockQuantity > 0
             ? `In Stock (${product.stockQuantity} available)`
             : 'Out of Stock'}
-        </Text>
+        </Text> */}
 
         <View style={styles.qtyRow}>
           <TouchableOpacity style={styles.qtyBtn} onPress={() => setQuantity((q) => Math.max(1, q - 1))}>

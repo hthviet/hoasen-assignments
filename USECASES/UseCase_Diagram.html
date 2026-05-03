@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NHEO E-Commerce Platform - Use Cases</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        header p { font-size: 1.2em; opacity: 0.9; }
+        
+        .diagram-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .diagram-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .mermaid { text-align: center; }
+        
+        .use-cases-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .use-cases-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .use-case-category {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        
+        .use-case-category h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .use-case-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .use-case-item strong { color: #667eea; }
+        
+        .actors-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .actor-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .actor-card h3 { color: #667eea; margin-bottom: 10px; }
+        .actor-card p { color: #666; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card .number {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .stat-card .label { color: #666; margin-top: 10px; }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+        }
+        
+        @media print {
+            body { background: white; }
+            .diagram-section, .use-cases-section, .actor-card, .stat-card {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛒 NHEO Laptop E-Commerce Platform</h1>
+            <p>Use Cases & System Requirements</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number">21</div>
+                <div class="label">Use Cases</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">3</div>
+                <div class="label">Actor Types</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">6</div>
+                <div class="label">Functional Areas</div>
+            </div>
+        </div>
+        
+        <div class="diagram-section">
+            <h2>📊 System Use Case Diagram</h2>
+            <div class="mermaid">
+graph TB
+    subgraph Actors
+        Guest["👤 Guest User"]
+        Customer["👤 Registered Customer"]
+        Admin["👨‍💼 Administrator"]
+    end
+    
+    subgraph AuthenticationUC["Authentication & Account"]
+        UC1["Register New Account"]
+        UC2["Login to Account"]
+        UC3["View Profile"]
+        UC4["Logout from Account"]
+    end
+    
+    subgraph ProductUC["Product Catalog"]
+        UC5["Browse Product Catalog"]
+        UC6["Search Products"]
+        UC7["Filter & Sort Products"]
+        UC8["View Product Details"]
+    end
+    
+    subgraph CartUC["Shopping Cart"]
+        UC9["Add Product to Cart"]
+        UC10["View Shopping Cart"]
+        UC11["Modify Cart Quantity"]
+        UC12["Remove from Cart"]
+    end
+    
+    subgraph CheckoutUC["Checkout & Orders"]
+        UC13["Initiate Checkout"]
+        UC14["Place Order"]
+        UC15["View Order History"]
+        UC16["View Order Details"]
+    end
+    
+    subgraph AdminUC["Admin Management"]
+        UC17["Access Admin Dashboard"]
+        UC18["Manage Products"]
+        UC19["Track Orders"]
+        UC20["Update Order Status"]
+        UC21["View Revenue Reports"]
+    end
+    
+    Guest -->|participates| UC1
+    Guest -->|participates| UC5
+    Guest -->|participates| UC6
+    Guest -->|participates| UC7
+    Guest -->|participates| UC8
+    Guest -->|participates| UC9
+    Guest -->|participates| UC10
+    Guest -->|participates| UC11
+    Guest -->|participates| UC12
+    Guest -->|participates| UC2
+    
+    Customer -->|participates| UC2
+    Customer -->|participates| UC3
+    Customer -->|participates| UC4
+    Customer -->|participates| UC5
+    Customer -->|participates| UC6
+    Customer -->|participates| UC7
+    Customer -->|participates| UC8
+    Customer -->|participates| UC9
+    Customer -->|participates| UC10
+    Customer -->|participates| UC11
+    Customer -->|participates| UC12
+    Customer -->|participates| UC13
+    Customer -->|participates| UC14
+    Customer -->|participates| UC15
+    Customer -->|participates| UC16
+    
+    Admin -->|participates| UC17
+    Admin -->|participates| UC18
+    Admin -->|participates| UC19
+    Admin -->|participates| UC20
+    Admin -->|participates| UC21
+    
+    style Actors fill:#e1f5ff
+    style AuthenticationUC fill:#f3e5f5
+    style ProductUC fill:#e8f5e9
+    style CartUC fill:#fff3e0
+    style CheckoutUC fill:#fce4ec
+    style AdminUC fill:#f1f8e9
+            </div>
+        </div>
+        
+        <div class="use-cases-section">
+            <h2>👥 System Actors</h2>
+            <div class="actors-section">
+                <div class="actor-card">
+                    <h3>👤 Guest User</h3>
+                    <p>Anonymous users who can browse products and add to cart without registration</p>
+                </div>
+                <div class="actor-card">
+                    <h3>👤 Registered Customer</h3>
+                    <p>Authenticated users who can purchase items, place orders, and track order history</p>
+                </div>
+                <div class="actor-card">
+                    <h3>👨‍💼 Administrator</h3>
+                    <p>System managers who control product catalog, orders, and view analytics</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="use-cases-section">
+            <h2>📋 Use Cases Summary</h2>
+            
+            <div class="use-case-category">
+                <h3>🔐 Authentication & Account (4 Use Cases)</h3>
+                <div class="use-case-item"><strong>UC-1.1:</strong> Register New Account</div>
+                <div class="use-case-item"><strong>UC-1.2:</strong> Login to Account</div>
+                <div class="use-case-item"><strong>UC-1.3:</strong> View Profile</div>
+                <div class="use-case-item"><strong>UC-1.4:</strong> Logout from Account</div>
+            </div>
+            
+            <div class="use-case-category">
+                <h3>📦 Product Catalog (4 Use Cases)</h3>
+                <div class="use-case-item"><strong>UC-2.1:</strong> Browse Product Catalog (paginated)</div>
+                <div class="use-case-item"><strong>UC-2.2:</strong> Search Products by name/brand</div>
+                <div class="use-case-item"><strong>UC-2.3:</strong> Filter & Sort Products</div>
+                <div class="use-case-item"><strong>UC-2.4:</strong> View Product Details</div>
+            </div>
+            
+            <div class="use-case-category">
+                <h3>🛒 Shopping Cart (4 Use Cases)</h3>
+                <div class="use-case-item"><strong>UC-3.1:</strong> Add Product to Cart</div>
+                <div class="use-case-item"><strong>UC-3.2:</strong> View Shopping Cart</div>
+                <div class="use-case-item"><strong>UC-3.3:</strong> Modify Cart Item Quantity</div>
+                <div class="use-case-item"><strong>UC-3.4:</strong> Remove Product from Cart</div>
+            </div>
+            
+            <div class="use-case-category">
+                <h3>💳 Checkout & Orders (4 Use Cases)</h3>
+                <div class="use-case-item"><strong>UC-4.1:</strong> Initiate Checkout</div>
+                <div class="use-case-item"><strong>UC-4.2:</strong> Place Order</div>
+                <div class="use-case-item"><strong>UC-5.1:</strong> View Order History</div>
+                <div class="use-case-item"><strong>UC-5.2:</strong> View Order Details</div>
+            </div>
+            
+            <div class="use-case-category">
+                <h3>⚙️ Admin Management (5 Use Cases)</h3>
+                <div class="use-case-item"><strong>UC-6.1:</strong> Access Admin Dashboard</div>
+                <div class="use-case-item"><strong>UC-6.2:</strong> Manage Products (CRUD)</div>
+                <div class="use-case-item"><strong>UC-6.3:</strong> Track Orders</div>
+                <div class="use-case-item"><strong>UC-6.4:</strong> Update Order Status</div>
+                <div class="use-case-item"><strong>UC-6.5:</strong> View Revenue Reports</div>
+            </div>
+        </div>
+        
+        <div class="use-cases-section">
+            <h2>🎯 Key Features by Actor</h2>
+            <div style="display: grid; gap: 20px;">
+                <div style="background: #f0f7ff; padding: 20px; border-radius: 8px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Guest Users Can:</h3>
+                    <ul style="margin-left: 20px;">
+                        <li>Browse laptop catalog with pagination</li>
+                        <li>Search and filter products</li>
+                        <li>View detailed product information</li>
+                        <li>Add items to shopping cart</li>
+                        <li>Register for an account</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #f0fdf4; padding: 20px; border-radius: 8px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Registered Customers Can (All of Above):</h3>
+                    <ul style="margin-left: 20px;">
+                        <li>Place orders with shipping address</li>
+                        <li>View complete order history</li>
+                        <li>Track individual order details</li>
+                        <li>Manage their profile</li>
+                        <li>Logout and manage sessions</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #fdf9f0; padding: 20px; border-radius: 8px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Administrators Can:</h3>
+                    <ul style="margin-left: 20px;">
+                        <li>Create, read, update, delete products</li>
+                        <li>Manage product inventory</li>
+                        <li>View and manage all customer orders</li>
+                        <li>Update order status (Pending → Processing → Shipped → Delivered)</li>
+                        <li>View revenue reports and analytics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>NHEO Laptop E-Commerce Platform | Use Cases Document | May 3, 2026</p>
+            <p style="margin-top: 10px; color: #999;">GitHub: https://github.com/hthviet/hoasen-assignments</p>
+        </footer>
+    </div>
+    
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+        mermaid.contentLoaded();
+    </script>
+</body>
+</html>
