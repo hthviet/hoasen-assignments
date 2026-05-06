@@ -7,6 +7,8 @@ using PT_WINFORM.Models;
 public interface IAuthService
 {
     Task<LoginResponse> LoginAsync(string email, string password);
+    Task<LoginResponse> RegisterAsync(string fullName, string email, string password);
+    void Logout();
     string GetToken();
 }
 
@@ -41,6 +43,32 @@ public class AuthService : IAuthService
 
         _token = login.Token;
         return login;
+    }
+
+    public async Task<LoginResponse> RegisterAsync(string fullName, string email, string password)
+    {
+        var payload = JsonSerializer.Serialize(new { fullName, email, password });
+        using var content = new StringContent(payload, Encoding.UTF8, "application/json");
+        using var response = await _httpClient.PostAsync("/api/auth/register", content);
+
+        response.EnsureSuccessStatusCode();
+
+        var body = await response.Content.ReadAsStringAsync();
+        var login = JsonSerializer.Deserialize<LoginResponse>(body, _jsonOptions)
+            ?? throw new InvalidOperationException("Register token missing from API response.");
+
+        if (string.IsNullOrWhiteSpace(login.Token))
+        {
+            throw new InvalidOperationException("Register token missing from API response.");
+        }
+
+        _token = login.Token;
+        return login;
+    }
+
+    public void Logout()
+    {
+        _token = string.Empty;
     }
 
     public string GetToken() => _token;
