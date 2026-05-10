@@ -1,238 +1,219 @@
-# PT_MOBILE – Tech Stack Document
+# PT_MOBILE_RN - Tech Stack Document
 
 ## 1. Project Overview
 
-PT_MOBILE is a native Android application that allows customers to browse and purchase laptops from the Laptop Store.
-It connects to the existing PT_WEB backend through a REST API with JWT authentication.
+PT_MOBILE_RN is a cross-platform mobile app (Android/iOS/Web via Expo) for browsing and ordering laptops.
+It integrates with the PT_WEB backend using REST APIs and JWT-based authentication.
 
 ```
 PT_WEB (ASP.NET Core 8 + SQL Server)
-      │
-      │  REST API (JSON over HTTPS)
-      │  JWT Bearer Token
-      ▼
-PT_MOBILE (Android – Java – Android Studio)
+      |
+      | REST API (JSON over HTTP)
+      | JWT Bearer Token
+      v
+PT_MOBILE_RN (React Native + Expo)
 ```
 
----
+## 2. Core Technology Stack
 
-## 2. Backend – PT_WEB API Layer
+### Runtime and Framework
+- React 19.1.0
+- React Native 0.81.5
+- Expo SDK 54
 
-### Framework
-- ASP.NET Core 8 MVC + Web API
-- Language: C#
+### Navigation
+- @react-navigation/native
+- @react-navigation/native-stack
+- @react-navigation/bottom-tabs
+- react-native-screens
+- react-native-safe-area-context
+- react-native-gesture-handler
 
-### Authentication
-- Cookie auth for the web interface (unchanged)
-- JWT Bearer token for the mobile API
+### Networking and API
+- axios for HTTP client
+- Central API client with request interceptor for JWT token injection
 
-### JWT Configuration (appsettings.json)
+### Local Storage and Session
+- @react-native-async-storage/async-storage
+- Stores token and user profile locally
+
+### UI and Theming
+- React Native core components + StyleSheet
+- @expo/vector-icons (Ionicons) for tab/navigation icons
+- expo-status-bar
+- Central color and formatting utilities in src/utils/constants.js
+
+## 3. App Architecture
+
+The app uses a lightweight layered structure:
+
+- Presentation layer: screen components under src/screens
+- State layer: React Context providers
+  - AuthContext: authentication state (user, token, loading)
+  - CartContext: cart state (items, quantities, totals)
+- Data layer: API modules under src/api
+  - client.js: axios instance + auth interceptor
+  - index.js: endpoint-specific API wrappers (auth, products, orders)
+
+Navigation structure:
+
+- Root stack navigator
+  - HomeTab (bottom tabs)
+  - ProductDetail
+  - Checkout
+  - Auth (modal stack)
+- Auth stack
+  - Login
+  - Register
+- Bottom tabs
+  - Home
+  - Cart
+  - Orders
+  - Profile
+
+## 4. Feature Coverage
+
+### Product browsing
+- Product list with search, category filter, and price sort
+- Pagination via page query parameter and infinite scrolling
+- Product details screen with quantity selector
+
+### Cart and checkout
+- In-memory cart management in CartContext
+- Quantity update, remove item, clear cart
+- Checkout payload maps cart items to { productId, quantity }
+
+### Authentication and account
+- Register/login via backend API
+- JWT token persistence in AsyncStorage
+- Conditional guest vs authenticated experiences
+
+### Orders
+- Fetch current user orders from protected endpoint
+- Pull-to-refresh order list
+
+## 5. Backend API Contract (Used by Mobile)
+
+| Method | Endpoint | Auth | Purpose |
+|--------|----------|------|---------|
+| POST | /api/auth/register | No | Register new account |
+| POST | /api/auth/login | No | Login and return JWT |
+| GET | /api/products | No | Product listing with query params |
+| GET | /api/products/{id} | No | Product detail |
+| GET | /api/products/categories | No | Category list |
+| POST | /api/orders/checkout | Yes | Place order |
+| GET | /api/orders/my | Yes | Current user order history |
+
+Supported product query params:
+
+- search: string
+- categoryId: number
+- sort: price_asc | price_desc
+- page: number
+
+## 6. Configuration
+
+### API base URL
+Defined in src/api/client.js:
+
+```js
+const BASE_URL = 'http://10.0.2.2:5226';
+```
+
+Notes:
+- 10.0.2.2 works for Android emulator to reach host localhost
+- For physical devices, replace with host machine LAN IP
+
+### Expo app config
+Defined in app.json:
+
+- orientation: portrait
+- userInterfaceStyle: light
+- newArchEnabled: true
+- android.edgeToEdgeEnabled: true
+
+## 7. Project Structure
+
+```
+PT_MOBILE_RN/
+  App.js
+  app.json
+  package.json
+  src/
+    api/
+      client.js
+      index.js
+    context/
+      AuthContext.js
+      CartContext.js
+    screens/
+      HomeScreen.js
+      ProductDetailScreen.js
+      CartScreen.js
+      CheckoutScreen.js
+      OrdersScreen.js
+      ProfileScreen.js
+      LoginScreen.js
+      RegisterScreen.js
+    utils/
+      constants.js
+```
+
+## 8. Dependencies (package.json)
+
 ```json
-"Jwt": {
-  "Key": "LaptopStoreSuperSecretKey2026XyZ!@#$",
-  "Issuer": "LaptopStoreApi",
-  "Audience": "LaptopStoreMobile"
+{
+  "dependencies": {
+    "expo": "~54.0.33",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "axios": "^1.15.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-navigation/native": "^7.2.2",
+    "@react-navigation/native-stack": "^7.14.12",
+    "@react-navigation/bottom-tabs": "^7.15.11",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "expo-status-bar": "~3.0.9",
+    "expo-linear-gradient": "~15.0.8",
+    "react-native-vector-icons": "^10.3.0"
+  }
 }
 ```
 
-### API Endpoints
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | /api/auth/register | None | Register new customer |
-| POST | /api/auth/login | None | Login, returns JWT token |
-| GET | /api/products | None | List products (search, filter, sort, paginate) |
-| GET | /api/products/{id} | None | Get product detail |
-| GET | /api/products/categories | None | List all categories |
-| POST | /api/orders/checkout | JWT | Place an order |
-| GET | /api/orders/my | JWT | Get my order history |
-
-### Query parameters for GET /api/products
-| Param | Type | Description |
-|-------|------|-------------|
-| search | string | Filter by product name |
-| categoryId | int | Filter by category |
-| sort | string | `price_asc` or `price_desc` |
-| page | int | Page number (default 1) |
-
-### Database
-- SQL Server
-- ORM: Entity Framework Core 8
-
----
-
-## 3. Mobile – PT_MOBILE
-
-### Language
-- Java
-
-### IDE
-- Android Studio (Ladybug or newer)
-
-### Minimum SDK
-- API level 24 (Android 7.0)
-
-### Target SDK
-- API level 34 (Android 14)
-
-### Architecture
-- Single Activity with Fragment navigation
-- Simple MVC/direct pattern (student level)
-
-### Key Libraries
-
-| Library | Purpose |
-|---------|---------|
-| Retrofit 2 | HTTP client for API calls |
-| OkHttp 3 | Underlying HTTP engine + logging interceptor |
-| Gson | JSON serialization/deserialization |
-| Glide | Image loading from URL |
-| RecyclerView | Product list, cart list, order list |
-| ViewPager2 + BottomNavigationView | Main navigation |
-| SharedPreferences | Store JWT token locally |
-| Material Components | UI styling |
-| ConstraintLayout | Layout |
-
----
-
-## 4. Screen Map
-
-```
-SplashActivity
-    │
-    ├── MainActivity (BottomNav: Home / Search / Cart / Orders / Account)
-    │       ├── HomeFragment        – Featured products
-    │       ├── ProductListFragment – Browse, search, filter, sort, paginate
-    │       ├── ProductDetailActivity – Detail + Add to cart
-    │       ├── CartFragment        – Cart items, update qty, delete, checkout
-    │       ├── OrdersFragment      – Order history (requires login)
-    │       └── AccountFragment     – Login / Register / Logout
-    │
-    ├── LoginActivity
-    └── RegisterActivity
-```
-
----
-
-## 5. Data Flow
-
-### Guest flow
-1. App starts → fetch products from `/api/products`
-2. User browses, adds item to local cart (in-memory list)
-3. User taps Checkout → redirect to login if not authenticated
-
-### Authenticated flow
-1. User logs in → JWT token saved in SharedPreferences
-2. Token attached as `Authorization: Bearer <token>` header on every protected call
-3. Checkout → POST `/api/orders/checkout` with cart items + address + phone
-4. Success → confirmation screen + clear cart
-5. View order history → GET `/api/orders/my`
-
----
-
-## 6. Project Structure (Android)
-
-```
-PT_MOBILE/
-  app/
-    src/main/
-      java/com/laptopstore/ptmobile/
-        activities/
-          MainActivity.java
-          LoginActivity.java
-          RegisterActivity.java
-          ProductDetailActivity.java
-        fragments/
-          HomeFragment.java
-          ProductListFragment.java
-          CartFragment.java
-          OrdersFragment.java
-          AccountFragment.java
-        adapters/
-          ProductAdapter.java
-          CartAdapter.java
-          OrderAdapter.java
-        models/
-          Product.java
-          Category.java
-          CartItem.java
-          Order.java
-          OrderItem.java
-          LoginRequest.java
-          RegisterRequest.java
-          CheckoutRequest.java
-          AuthResponse.java
-        network/
-          ApiClient.java
-          ApiService.java
-          AuthInterceptor.java
-        utils/
-          SessionManager.java
-          CartManager.java
-      res/
-        layout/
-        drawable/
-        values/
-    build.gradle
-  build.gradle
-  settings.gradle
-```
-
----
-
-## 7. Cart Strategy
-
-Cart is kept in-memory via a singleton `CartManager` class during the session.
-No cart persistence to server – on checkout the full cart is submitted in one POST.
-This keeps the approach simple and matches the assignment scope.
-
----
-
-## 8. API Base URL Configuration
-
-In `ApiClient.java`, set:
-```java
-private static final String BASE_URL = "http://10.0.2.2:5226/"; // emulator
-// private static final String BASE_URL = "http://<your-local-ip>:5226/"; // physical device
-```
-
-`10.0.2.2` is the Android Emulator alias for the host machine's `localhost`.
-
----
-
-## 9. Dependencies (app/build.gradle)
-
-```gradle
-dependencies {
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
-    implementation 'com.github.bumptech.glide:glide:4.16.0'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'androidx.viewpager2:viewpager2:1.1.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-}
-```
-
----
-
-## 10. Build Requirements
+## 9. Build and Run Requirements
 
 | Requirement | Version |
 |-------------|---------|
-| Android Studio | Ladybug 2024.2+ |
-| JDK | 17 |
-| Gradle | 8.x |
-| Compile SDK | 34 |
-| Min SDK | 24 |
+| Node.js | 18+ recommended |
+| npm | 9+ recommended |
+| Expo CLI | via npx expo |
+| Android Studio/Xcode | Required for native simulator/emulator |
 
----
+Run commands:
 
-## 11. Delivery Checklist
+```bash
+npm install
+npm run start
+npm run android
+npm run ios
+npm run web
+```
 
-- [ ] Backend API running on `http://localhost:5226`
-- [ ] Android emulator or physical device connected
-- [ ] `BASE_URL` set correctly in `ApiClient.java`
-- [ ] Build and run in Android Studio
-- [ ] Test: Register → Browse → Add to cart → Checkout → View orders
+## 10. Current Technical Notes
+
+- Cart data is session-scoped in memory (not persisted across app restarts)
+- Auth state is persisted with AsyncStorage and restored on app launch
+- Protected actions (checkout/orders) are gated by token presence in UI and API
+- Error handling currently uses simple Alert messages (minimal but clear)
+
+## 11. QA Checklist
+
+- [ ] Start PT_WEB backend on port 5226
+- [ ] Verify API base URL in src/api/client.js for current device
+- [ ] Register and login successfully
+- [ ] Browse products with search/filter/sort/pagination
+- [ ] Add/update/remove cart items
+- [ ] Place checkout as authenticated user
+- [ ] View order history after checkout
