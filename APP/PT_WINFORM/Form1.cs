@@ -64,7 +64,7 @@ public partial class Form1 : Form
     {
         Text = "Laptop Store Desktop";
         StartPosition = FormStartPosition.CenterScreen;
-        MinimumSize = new Size(1200, 760);
+        MinimumSize = new Size(1700, 760);
         BackColor = Color.FromArgb(245, 247, 251);
 
         var sidebar = new Panel

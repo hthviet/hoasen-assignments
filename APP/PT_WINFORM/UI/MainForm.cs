@@ -117,16 +117,16 @@ public partial class MainForm : Form
         BackColor = Color.FromArgb(245, 247, 251);
         DoubleBuffered = true;
 
-        var workingArea = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1600, 900);
-        var width = Math.Max(1100, workingArea.Width / 2);
-        var height = Math.Max(700, workingArea.Height / 2);
+        var workingArea = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1920, 1080);
+        var width = Math.Max(1500, (int)(workingArea.Width * 0.75));
+        var height = Math.Max(800, (int)(workingArea.Height * 0.8));
 
-        MinimumSize = new Size(1100, 700);
+        MinimumSize = new Size(1500, 800);
         Size = new Size(width, height);
         Location = new Point(
             workingArea.Left + ((workingArea.Width - width) / 2),
             workingArea.Top + ((workingArea.Height - height) / 2));
-        WindowState = FormWindowState.Maximized;
+        WindowState = FormWindowState.Normal;
 
         var contentPanel = CreateContentPanel();
 
@@ -655,7 +655,7 @@ public partial class MainForm : Form
         var card = new Panel
         {
             Width = 320,
-            Height = 500,
+            Height = 548,
             Margin = new Padding(10),
             BackColor = Color.White,
             BorderStyle = BorderStyle.FixedSingle,
@@ -667,12 +667,13 @@ public partial class MainForm : Form
             Dock = DockStyle.Fill,
             Padding = new Padding(10),
             ColumnCount = 1,
-            RowCount = 4
+            RowCount = 5
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 190));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 64));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 146));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
 
         var imageBox = new PictureBox
@@ -784,6 +785,23 @@ public partial class MainForm : Form
             RefreshDashboard();
         };
 
+        var detailsButton = new Button
+        {
+            Text = "View Details",
+            Dock = DockStyle.Fill,
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Color.White,
+            ForeColor = Color.FromArgb(37, 99, 235),
+            Font = new Font("Segoe UI", 9, FontStyle.Bold)
+        };
+        detailsButton.FlatAppearance.BorderColor = Color.FromArgb(37, 99, 235);
+        detailsButton.FlatAppearance.BorderSize = 1;
+        detailsButton.Click += (_, _) => OpenProductDetail(product);
+
+        card.DoubleClick += (_, _) => OpenProductDetail(product);
+        imageBox.DoubleClick += (_, _) => OpenProductDetail(product);
+        nameLabel.DoubleClick += (_, _) => OpenProductDetail(product);
+
         attributesTable.Controls.Add(categoryTitleLabel, 0, 0);
         attributesTable.Controls.Add(categoryLabel, 1, 0);
         attributesTable.Controls.Add(priceTitleLabel, 0, 1);
@@ -794,10 +812,24 @@ public partial class MainForm : Form
         layout.Controls.Add(imageBox, 0, 0);
         layout.Controls.Add(nameLabel, 0, 1);
         layout.Controls.Add(attributesTable, 0, 2);
-        layout.Controls.Add(addButton, 0, 3);
+        layout.Controls.Add(detailsButton, 0, 3);
+        layout.Controls.Add(addButton, 0, 4);
 
         card.Controls.Add(layout);
         return card;
+    }
+
+    private void OpenProductDetail(ProductDto product)
+    {
+        using var detailForm = new ProductDetailForm(product, FormatVnd(product.Price), BindProductImageAsync);
+        if (detailForm.ShowDialog(this) != DialogResult.OK)
+        {
+            return;
+        }
+
+        _cartManager.AddProduct(product, detailForm.SelectedQuantity);
+        RefreshCartGrid();
+        RefreshDashboard();
     }
 
     private void BuildCartTab(TabPage tab)
@@ -1794,6 +1826,198 @@ public partial class MainForm : Form
     private static string FormatVnd(decimal amount)
     {
         return $"{amount:N0} VND";
+    }
+
+    private sealed class ProductDetailForm : Form
+    {
+        private readonly NumericUpDown _quantityInput;
+
+        public ProductDetailForm(
+            ProductDto product,
+            string priceText,
+            Func<PictureBox, string, Task> bindImageAsync)
+        {
+            AutoScaleMode = AutoScaleMode.Dpi;
+            Width = 760;
+            Height = 560;
+            MinimumSize = new Size(700, 500);
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.Sizable;
+            MaximizeBox = true;
+            MinimizeBox = false;
+            ShowInTaskbar = false;
+            Text = $"Product Detail - {product.Name}";
+            BackColor = Color.White;
+
+            var root = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                Padding = new Padding(18)
+            };
+            root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 280));
+            root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+            var imageBox = new PictureBox
+            {
+                Dock = DockStyle.Fill,
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BorderStyle = BorderStyle.FixedSingle,
+                BackColor = Color.FromArgb(248, 250, 252)
+            };
+
+            if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+            {
+                _ = bindImageAsync(imageBox, product.ImageUrl);
+            }
+
+            var detailsPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 8,
+                Padding = new Padding(16, 4, 0, 4)
+            };
+            detailsPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            detailsPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            detailsPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            detailsPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            detailsPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 8));
+            detailsPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            detailsPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
+            detailsPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 52));
+
+            var nameLabel = new Label
+            {
+                AutoSize = true,
+                MaximumSize = new Size(420, 0),
+                Text = product.Name,
+                Font = new Font("Segoe UI", 18, FontStyle.Bold),
+                ForeColor = Color.FromArgb(25, 30, 48)
+            };
+
+            var brandLabel = new Label
+            {
+                AutoSize = true,
+                Text = $"Brand: {product.Brand}",
+                Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                ForeColor = Color.FromArgb(75, 85, 99),
+                Margin = new Padding(0, 8, 0, 0)
+            };
+
+            var categoryLabel = new Label
+            {
+                AutoSize = true,
+                Text = $"Category: {product.CategoryName}",
+                Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                ForeColor = Color.FromArgb(75, 85, 99),
+                Margin = new Padding(0, 4, 0, 0)
+            };
+
+            var priceLabel = new Label
+            {
+                AutoSize = true,
+                Text = $"Price: {priceText}",
+                Font = new Font("Segoe UI", 14, FontStyle.Bold),
+                ForeColor = Color.FromArgb(37, 99, 235),
+                Margin = new Padding(0, 10, 0, 0)
+            };
+
+            var descriptionBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                ReadOnly = true,
+                Multiline = true,
+                ScrollBars = ScrollBars.Vertical,
+                BackColor = Color.FromArgb(249, 250, 251),
+                BorderStyle = BorderStyle.FixedSingle,
+                Text = string.IsNullOrWhiteSpace(product.Description)
+                    ? "No description available."
+                    : product.Description
+            };
+
+            var quantityPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Padding = new Padding(0, 10, 0, 0)
+            };
+
+            var qtyLabel = new Label
+            {
+                AutoSize = true,
+                Text = "Quantity",
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Margin = new Padding(0, 8, 12, 0)
+            };
+
+            _quantityInput = new NumericUpDown
+            {
+                Minimum = 1,
+                Maximum = 99,
+                Value = 1,
+                Width = 110,
+                Height = 34,
+                Font = new Font("Segoe UI", 10, FontStyle.Regular)
+            };
+
+            var addButton = new Button
+            {
+                Text = "Add To Cart",
+                Dock = DockStyle.Fill,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(37, 99, 235),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                DialogResult = DialogResult.OK
+            };
+            addButton.FlatAppearance.BorderSize = 0;
+
+            var closeButton = new Button
+            {
+                Text = "Close",
+                Dock = DockStyle.Fill,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(229, 231, 235),
+                ForeColor = Color.FromArgb(17, 24, 39),
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                DialogResult = DialogResult.Cancel
+            };
+            closeButton.FlatAppearance.BorderSize = 0;
+
+            quantityPanel.Controls.Add(qtyLabel);
+            quantityPanel.Controls.Add(_quantityInput);
+
+            detailsPanel.Controls.Add(nameLabel, 0, 0);
+            detailsPanel.Controls.Add(brandLabel, 0, 1);
+            detailsPanel.Controls.Add(categoryLabel, 0, 2);
+            detailsPanel.Controls.Add(priceLabel, 0, 3);
+            detailsPanel.Controls.Add(descriptionBox, 0, 5);
+            detailsPanel.Controls.Add(quantityPanel, 0, 6);
+            detailsPanel.Controls.Add(addButton, 0, 7);
+
+            root.Controls.Add(imageBox, 0, 0);
+            root.Controls.Add(detailsPanel, 1, 0);
+
+            Controls.Add(root);
+
+            AcceptButton = addButton;
+            CancelButton = closeButton;
+
+            var bottom = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 56,
+                Padding = new Padding(18, 8, 18, 10),
+                BackColor = Color.White
+            };
+            bottom.Controls.Add(closeButton);
+            Controls.Add(bottom);
+        }
+
+        public int SelectedQuantity => (int)_quantityInput.Value;
     }
 
     private sealed class CategoryFilterItem

@@ -60,7 +60,6 @@ internal static class Program
         var httpClient = new HttpClient { BaseAddress = ApiBaseUri };
 
         var mainForm = new MainForm(authService, productService, orderService, cartManager, httpClient);
-        
         Application.Run(mainForm);
     }
 }
